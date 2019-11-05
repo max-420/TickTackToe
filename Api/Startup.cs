@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
@@ -42,6 +43,16 @@ namespace Api
 			services.Configure<AuthOptions>(authSection);
 			var authOptions = authSection.Get<AuthOptions>();
 
+			services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
+			{
+				builder
+					.AllowAnyMethod()
+					.AllowAnyHeader()
+					.WithOrigins("http://localhost:6200");
+			}));
+
+			services.AddSignalR();
+
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 				.AddJwtBearer(options =>
 				{
@@ -59,6 +70,7 @@ namespace Api
 				});
 
 			services.AddControllers();
+			
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -75,10 +87,12 @@ namespace Api
 
 			app.UseAuthentication();
 			app.UseAuthorization();
+			app.UseCors(x=>x.AllowAnyOrigin());
 
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
+				endpoints.MapHub<GameHub>("/game");
 			});
 		}
 	}
