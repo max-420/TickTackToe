@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Domain;
 using Dto;
 
 namespace Services
 {
-	public interface IGameService
+    public interface ITickTackToeGame
     {
-        StepDto StartGame();
-
-        StepResultDto MakeStep(StepDto newStep);
+        PlayerType? MakeStep(StepDto newStep);
     }
 }

@@ -6,6 +6,10 @@ namespace Domain
 {
 	public class Step : BaseEntity
 	{
+        public Game Game { get; set; }
+
+        public int GameId { get; set; }
+
 		public PlayerType Player { get; set; }
 
 		public int X { get; set; }

@@ -48,7 +48,8 @@ namespace Api
 				builder
 					.AllowAnyMethod()
 					.AllowAnyHeader()
-					.WithOrigins("http://localhost:6200");
+                    .AllowCredentials()
+                    .WithOrigins("https://localhost:6200");
 			}));
 
 			services.AddSignalR();
@@ -87,12 +88,11 @@ namespace Api
 
 			app.UseAuthentication();
 			app.UseAuthorization();
-			app.UseCors(x=>x.AllowAnyOrigin());
+            app.UseCors("CorsPolicy");
 
-			app.UseEndpoints(endpoints =>
+            app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
-				endpoints.MapHub<GameHub>("/game");
 			});
 		}
 	}

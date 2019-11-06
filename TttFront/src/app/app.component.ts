@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { GameService } from "./services/game-service";
 
 @Component({
   selector: 'app-root',
@@ -9,7 +8,6 @@ import { GameService } from "./services/game-service";
 export class AppComponent {
   title = 'ttt-front';
   constructor(
-    private gameService: GameService,
   ) {
   }
 }

@@ -4,7 +4,6 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import {HttpClientModule} from "@angular/common/http";
-import {GameService} from "./services/game-service";
 
 @NgModule({
   declarations: [
@@ -15,7 +14,7 @@ import {GameService} from "./services/game-service";
     AppRoutingModule,
     HttpClientModule,
   ],
-  providers: [GameService],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
