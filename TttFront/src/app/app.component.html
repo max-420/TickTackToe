@@ -1,7 +1,7 @@
 <!--The content below is only a placeholder and can be replaced.-->
 <div class="container">
   <button (click)="startGame()">Start new</button>
-  <button (click)="endGame()">End</button>
+  <button *ngIf="gameId && !isFinished"(click)="endGame()">End</button>
   <div *ngFor="let row of matrix; let i = index" class="row">
     <div *ngFor="let el of row; let j = index" class="el" (click)="makeStep(i, j)">
       {{el}}
