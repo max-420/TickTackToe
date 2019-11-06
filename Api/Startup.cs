@@ -17,7 +17,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Services;
-using Services.Options;
 
 namespace Api
 {
@@ -34,14 +33,7 @@ namespace Api
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddDbContext<DbContext, AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-			services.AddTransient<IAccountService, AccountService>();
 			services.AddTransient<IGameService, GameService>();
-			services.AddTransient<IPasswordHasher, PasswordHasher>();
-			services.AddTransient<IJwtGenerator, JwtGenerator>();
-
-			var authSection = Configuration.GetSection("Auth");
-			services.Configure<AuthOptions>(authSection);
-			var authOptions = authSection.Get<AuthOptions>();
 
 			services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
 			{
@@ -49,29 +41,14 @@ namespace Api
 					.AllowAnyMethod()
 					.AllowAnyHeader()
                     .AllowCredentials()
-                    .WithOrigins("https://localhost:6200");
+                    .WithOrigins("http://localhost:6200");
 			}));
 
-			services.AddSignalR();
-
-			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-				.AddJwtBearer(options =>
-				{
-					options.RequireHttpsMetadata = false;
-					options.TokenValidationParameters = new TokenValidationParameters
-					{
-						ValidateIssuer = true,
-						ValidIssuer = authOptions.Issuer,
-						ValidateAudience = true,
-						ValidAudience = authOptions.Audience,
-						ValidateLifetime = true,
-						IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(authOptions.Key)),
-						ValidateIssuerSigningKey = true,
-					};
-				});
-
-			services.AddControllers();
-			
+			services.AddControllers().AddNewtonsoftJson(options =>
+			{
+				options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+				options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

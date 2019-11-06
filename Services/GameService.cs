@@ -19,6 +19,16 @@ namespace Services
 
         public StepDto StartGame()
         {
+			var openGamesCount = _dbContext
+				.Set<Game>()
+				.Where(x => !x.IsFinished)
+				.Count();
+
+			if (openGamesCount >= 3)
+			{
+				throw new Exception("Too many game sessions");
+			}
+
             var userPlayerType = (PlayerType)new Random().Next(0, 2);
             var game = new Game
             {
@@ -58,33 +68,57 @@ namespace Services
 
             var tickTackToeGame = new TickTackToeGame(game.Steps);
             tickTackToeGame.MakeStep(newStep.Coordinates.X, newStep.Coordinates.Y, game.UserPlayerType);
-            var winner = tickTackToeGame.TryGetWinner();
+            var winnerDto = tickTackToeGame.TryGetWinner();
+			var step = new Step()
+			{
+				GameId = game.Id,
+				Player = game.UserPlayerType,
+				X = newStep.Coordinates.X,
+				Y = newStep.Coordinates.Y,
+			};
+			_dbContext.Add(step);
 
-            CoordinatesDto newStepCoordinates = null;
-            if (winner == null)
+			CoordinatesDto newStepCoordinates = null;
+            if (winnerDto.Winner == null && !winnerDto.IsDraw)
             {
-                newStepCoordinates = tickTackToeGame.MakeBotStep(game.UserPlayerType == PlayerType.X ? PlayerType.O : PlayerType.X);
-                winner = tickTackToeGame.TryGetWinner();
+				var botPlayerType = game.UserPlayerType == PlayerType.X ? PlayerType.O : PlayerType.X;
 
-                var step = new Step()
+				newStepCoordinates = tickTackToeGame.MakeBotStep(botPlayerType);
+                winnerDto = tickTackToeGame.TryGetWinner();
+
+                var botStep = new Step()
                 {
                     GameId = game.Id,
-                    Player = PlayerType.X,
+                    Player = botPlayerType,
                     X = newStepCoordinates.X,
                     Y = newStepCoordinates.Y,
                 };
-                _dbContext.Add(step);
+                _dbContext.Add(botStep);
             }
 
-            game.Winner = winner;
+            game.Winner = winnerDto.Winner;
+			game.IsFinished = winnerDto.Winner != null || winnerDto.IsDraw;
 
-            _dbContext.SaveChanges();
+
+			_dbContext.SaveChanges();
 
             return new StepResultDto
             {
-                Winner = winner,
+                Winner = winnerDto.Winner,
                 BotStep = newStepCoordinates,
-            };
+				IsFinished = game.IsFinished
+			};
         }
+
+		public void EndGame(int gameId)
+		{
+			var game = _dbContext.Set<Game>()
+				.Where(x => x.Id == gameId)
+				.First();
+
+			game.IsFinished = true;
+
+			_dbContext.SaveChanges();
+		}
     }
 }

@@ -10,5 +10,7 @@ namespace Services
         StepDto StartGame();
 
         StepResultDto MakeStep(StepDto newStep);
-    }
+
+		void EndGame(int gameId);
+	}
 }

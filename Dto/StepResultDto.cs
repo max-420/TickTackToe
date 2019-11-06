@@ -10,5 +10,7 @@ namespace Dto
         public CoordinatesDto BotStep { get; set; }
 
         public PlayerType? Winner { get; set; }
+
+		public bool IsFinished { get; set; }
     }
 }

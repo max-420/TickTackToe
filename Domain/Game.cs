@@ -10,6 +10,8 @@ namespace Domain
 
         public PlayerType? Winner { get; set; }
 
+		public bool IsFinished { get; set; }
+
 		public ICollection<Step> Steps { get; set; }
 	}
 }

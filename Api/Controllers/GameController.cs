@@ -37,5 +37,14 @@ namespace Api.Controllers
 
             return Ok(result);
         }
-    }
+
+		[Route("api/game/end"), HttpPut]
+		[AllowAnonymous]
+		public IActionResult EndGame([FromBody]int gameId)
+		{
+			_gameService.EndGame(gameId);
+
+			return Ok();
+		}
+	}
 }
